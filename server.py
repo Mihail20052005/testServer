@@ -6,11 +6,9 @@ from transformers import AutoTokenizer, AutoModel
 import torch
 import torch.nn.functional as F
 
-# Load model and tokenizer
 tokenizer = AutoTokenizer.from_pretrained("ai-forever/sbert_large_nlu_ru")
 model = AutoModel.from_pretrained("ai-forever/sbert_large_nlu_ru")
 
-# Mean Pooling
 def mean_pooling(model_output, attention_mask):
     token_embeddings = model_output[0]
     input_mask_expanded = attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
@@ -18,7 +16,6 @@ def mean_pooling(model_output, attention_mask):
     sum_mask = torch.clamp(input_mask_expanded.sum(1), min=1e-9)
     return sum_embeddings / sum_mask
 
-# Compute sentence embeddings
 def compute_sentence_embeddings(sentences):
     encoded_input = tokenizer(sentences, padding=True, truncation=True, max_length=24, return_tensors='pt')
     with torch.no_grad():
@@ -26,7 +23,6 @@ def compute_sentence_embeddings(sentences):
     sentence_embeddings = mean_pooling(model_output, encoded_input['attention_mask'])
     return sentence_embeddings
 
-# Calculate cosine similarity
 def cosine_similarity(embedding1, embedding2):
     return F.cosine_similarity(embedding1.unsqueeze(0), embedding2.unsqueeze(0)).item()
 
