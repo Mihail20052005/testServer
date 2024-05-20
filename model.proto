@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package your_package_name;
+
+service YourModel {
+    rpc ComputeSimilarity(SimilarityRequest) returns (SimilarityResponse);
+}
+
+message SimilarityRequest {
+    string sentence1 = 1;
+    string sentence2 = 2;
+}
+
+message SimilarityResponse {
+    float score = 1;
+}
