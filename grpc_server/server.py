@@ -1,7 +1,7 @@
 # grpc_server/server.py
 import grpc
 from concurrent import futures                                                            
-#from grpc import aio
+import time
 import logging
 
 import grpc._interceptor
@@ -16,6 +16,6 @@ class Server:
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
         add_AnswerServicer_to_server(AnswerServicer(), server)
         server.add_insecure_port(address=self.addr)
-        logging.info('server starting on %s', self.addr)
         server.start()
+        logging.info('server starting on %s', self.addr)
         server.wait_for_termination()
