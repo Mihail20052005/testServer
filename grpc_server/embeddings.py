@@ -1,10 +1,8 @@
-import grpc
-from concurrent import futures
-import model_pb2 as pb2
-import model_pb2_grpc as pb2_grpc
-from transformers import AutoTokenizer, AutoModel
+# grpc_server/embeddings.py
 import torch
+from transformers import AutoTokenizer, AutoModel
 import torch.nn.functional as F
+import logging
 
 tokenizer = AutoTokenizer.from_pretrained("ai-forever/sbert_large_nlu_ru")
 model = AutoModel.from_pretrained("ai-forever/sbert_large_nlu_ru")
@@ -24,21 +22,6 @@ def compute_sentence_embeddings(sentences):
     return sentence_embeddings
 
 def cosine_similarity(embedding1, embedding2):
-    return F.cosine_similarity(embedding1.unsqueeze(0), embedding2.unsqueeze(0)).item()
-
-class YourModelServicer(pb2_grpc.YourModelServicer):
-    def ComputeSimilarity(self, request, context):
-        embeddings = compute_sentence_embeddings([request.sentence1, request.sentence2])
-        similarity_score = cosine_similarity(embeddings[0], embeddings[1])
-        return pb2.SimilarityResponse(score=similarity_score)
-
-def serve():
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    pb2_grpc.add_YourModelServicer_to_server(YourModelServicer(), server)
-    server.add_insecure_port('[::]:50051')
-    server.start()
-    server.wait_for_termination()
-
-if __name__ == '__main__':
-    while(True):
-        serve()
+    similarity = F.cosine_similarity(embedding1.unsqueeze(0), embedding2.unsqueeze(0)).item()
+    logging.info('similarity: %f', similarity)
+    return similarity
